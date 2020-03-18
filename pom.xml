@@ -29,44 +29,26 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.jcabi</groupId>
-        <artifactId>jcabi</artifactId>
-        <version>1.15</version>
-    </parent>
+    <groupId>com.jcabi</groupId>
     <artifactId>jcabi-aspects</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>jcabi-aspects</name>
     <description>Collection of convenient and useful Java annotations</description>
-    <issueManagement>
-        <system>github</system>
-        <url>https://github.com/jcabi/jcabi-aspects/issues</url>
-    </issueManagement>
-    <ciManagement>
-        <system>rultor</system>
-        <url>http://www.rultor.com/s/jcabi</url>
-    </ciManagement>
-    <scm>
-        <connection>scm:git:github.com:jcabi/jcabi-aspects.git</connection>
-        <developerConnection>scm:git:github.com:jcabi/jcabi-aspects.git</developerConnection>
-        <url>https://github.com/jcabi/jcabi-aspects</url>
-    </scm>
-    <distributionManagement>
-        <site>
-            <id>aspects.jcabi.com</id>
-            <url>https://github.com/jcabi/jcabi-aspects</url>
-        </site>
-    </distributionManagement>
+
+    <properties>
+        <aspectj.version>1.9.4</aspectj.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-log</artifactId>
             <!-- version is set in order to avoid a cyclic reference -->
-            <version>0.15</version>
+            <version>0.18.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.jcabi</groupId>
@@ -77,12 +59,18 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <scope>compile</scope>
+            <version>2.0.1.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -105,82 +93,37 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <!--
-                    disabling cobertura because of:
-                    @see http://jira.codehaus.org/browse/MCOBERTURA-127
-                    -->
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>cobertura-maven-plugin</artifactId>
-                    <configuration>
-                        <instrumentation>
-                            <excludes>
-                                <exclude>**/*.class</exclude>
-                            </excludes>
-                        </instrumentation>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.11</version>
                 <configuration>
-                    <complianceLevel>1.6</complianceLevel>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <deprecation>true</deprecation>
-                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <complianceLevel>1.8</complianceLevel>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <showWeaveInfo>true</showWeaveInfo>
-                    <forceAjcCompile>true</forceAjcCompile>
-                    <verbose>false</verbose>
-                    <Xlint>warning</Xlint>
-                    <argumentFileName>builddef-${project.name}.lst</argumentFileName>
-                    <excludes>
-                        <exclude>**/package-info.java</exclude>
-                    </excludes>
+                    <verbose>true</verbose>
+                    <Xlint>ignore</Xlint>
+                    <encoding>UTF-8</encoding>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>jcabi-weave-classes</id>
                         <goals>
                             <goal>compile</goal>
                             <goal>test-compile</goal>
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <!-- Ensure aspectj tools version used by compiler is the same version used as dependency. Avoids warning -->
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>qulice</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.qulice</groupId>
-                        <artifactId>qulice-maven-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>checkstyle:/src/it/.*</exclude>
-                                <exclude>checkstyle:/src/site/apt/.*</exclude>
-                                <exclude>pmd:/src/it/.*</exclude>
-                                <exclude>findbugs:.*</exclude>
-                                <exclude>xml:/src/it/settings.xml</exclude>
-                                <exclude>checkstyle:\\src\\it\\.*</exclude>
-                                <exclude>checkstyle:\\src\\site\\apt\\.*</exclude>
-                                <exclude>pmd:\\src\\it\\.*</exclude>
-                                <exclude>findbugs:.*</exclude>
-                                <exclude>xml:\\src\\it\\settings.xml</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
